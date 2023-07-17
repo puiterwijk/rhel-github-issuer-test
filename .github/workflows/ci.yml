@@ -15,6 +15,10 @@ jobs:
         env:
             SMDEV_CONTAINER_OFF: 1 
         steps:
+            - name: Install a non-UBI shipped package - should fail
+              run: |
+                dnf install -y kernel-devel || echo "failed as expected"
+
             - name: Get RHEL subscription
               shell: bash
               run: |
@@ -24,22 +28,11 @@ jobs:
                 echo "Error: $error"
                 orgid=$(echo $result | python3 -c 'import json; import sys; print(json.loads(sys.stdin.read())["org_id"])')
                 activation_key=$(echo $result | python3 -c 'import json; import sys; print(json.loads(sys.stdin.read())["activation_key"])')
-                echo "Org ID: $orgid"
+                echo "::add-mask::$orgid"
+                echo "::add-mask::$activation_key"
+                
+                subscription-manager register --org=$orgid --activationkey=$activation_key
 
-            - name: Mask secrets
-              shell: bash
-              run: |
-                echo "::add-mask::${{ secrets.ORG_ID }}"
-                echo "::add-mask::${{ secrets.ACTIVATION_KEY }}"
-            - name: Install a non-UBI shipped package - should fail
-              run: |
-                dnf install -y kernel-devel || echo "failed as expected"
-            - name: Register with D4I
-              env:
-                ORG_ID: ${{ secrets.ORG_ID }}
-                ACTIVATION_KEY: ${{ secrets.ACTIVATION_KEY }}
-              run: |
-                subscription-manager register --org=$ORG_ID --activationkey=$ACTIVATION_KEY
             - name: Install a non-UBI shipped package - should succeed
               run: |
                 dnf install -y kernel-devel
