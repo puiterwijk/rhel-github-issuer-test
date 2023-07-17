@@ -19,7 +19,7 @@ jobs:
               shell: bash
               run: |
                 idtoken=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://rhel-issuer" | python3 -c 'import json; import sys; print(json.loads(sys.stdin.read())["value"])')
-                result=$(curl --fail -H "Authorization: Bearer $idtoken" https://8yblh00n16.execute-api.us-east-2.amazonaws.com/issue -X POST)
+                result=$(curl -H "Authorization: Bearer $idtoken" https://8yblh00n16.execute-api.us-east-2.amazonaws.com/issue -X POST)
                 echo "Result: $result"
 
             - name: Mask secrets
