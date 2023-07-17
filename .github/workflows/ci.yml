@@ -1,0 +1,40 @@
+on:
+    push:
+    pull_request_target:
+
+name: RHEL with GitHub Runners
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        container: redhat/ubi9:latest
+        env:
+            SMDEV_CONTAINER_OFF: 1 
+        steps:
+            - name: Get RHEL subscription
+              shell: bash
+              run: |
+                idtoken=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://rhel-issuer")
+                echo "ID Token: $idtoken"
+
+            - name: Mask secrets
+              shell: bash
+              run: |
+                echo "::add-mask::${{ secrets.ORG_ID }}"
+                echo "::add-mask::${{ secrets.ACTIVATION_KEY }}"
+            - name: Install a non-UBI shipped package - should fail
+              run: |
+                dnf install -y kernel-devel || echo "failed as expected"
+            - name: Register with D4I
+              env:
+                ORG_ID: ${{ secrets.ORG_ID }}
+                ACTIVATION_KEY: ${{ secrets.ACTIVATION_KEY }}
+              run: |
+                subscription-manager register --org=$ORG_ID --activationkey=$ACTIVATION_KEY
+            - name: Install a non-UBI shipped package - should succeed
+              run: |
+                dnf install -y kernel-devel
